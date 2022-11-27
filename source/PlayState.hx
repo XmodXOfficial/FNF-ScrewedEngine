@@ -238,6 +238,9 @@ class PlayState extends MusicBeatState
 	public var camGame:FlxCamera;
 	public var camOther:FlxCamera;
 	public var cameraSpeed:Float = 1;
+	
+
+	var notesHitArray:Array<Date> = [];
 
 	public static var the3DWorldEffect:WiggleEffect;
 	public static var the3DWorldEffectWavy:WiggleEffect;
@@ -2580,7 +2583,7 @@ class PlayState extends MusicBeatState
 
 	public function updateScore(miss:Bool = false)
 	{
-		if (ClientPrefs.scoreZoom && !miss && !cpuControlled)
+		if (ClientPrefs.scoreZoom && !miss)
 		{
 			if (scoreTxtTween != null)
 			{
@@ -3407,9 +3410,25 @@ class PlayState extends MusicBeatState
 			}
 		}
 
+		{
+			var balls = notesHitArray.length-1;
+			while (balls >= 0)
+			{
+				var cock:Date = notesHitArray[balls];
+				if (cock != null && cock.getTime() + 1000 < Date.now().getTime())
+					notesHitArray.remove(cock);
+				else
+					balls = 0;
+				balls--;
+			}
+			nps = notesHitArray.length;
+			if (nps > maxNPS)
+				maxNPS = nps;
+		}
+
 		if (ClientPrefs.crazyCounter)
 		{
-			judgementCounter.text = 'Sicks: ${sicks}\nGoods: ${goods}\nBads: ${bads}\nShits: ${shits}\nTotal Hits: ${totals}\nCombo: ${combo}\n';
+			judgementCounter.text = 'Total Notes Hit: ${totals}\nSicks: ${sicks}\nGoods: ${goods}\nBads: ${bads}\nShits: ${shits}\nMisses: ${misses}\nCombo: ${combo}\nNPS: ${nps}\nMax NPS: ${maxNPS}';
 		}
 
 		super.update(elapsed);
@@ -3417,9 +3436,7 @@ class PlayState extends MusicBeatState
 		setOnLuas('curDecStep', curDecStep);
 		setOnLuas('curDecBeat', curDecBeat);
 
-		scoreTxt.text = 'Score: ' + songScore + ' | Misses: ' + songMisses + ' | Combo: ' + combo + ' | Rating: ' + ratingName;
-		if (ratingName != '?')
-			scoreTxt.text += ' (' + Highscore.floorDecimal(ratingPercent * 100, 2) + '%)' + ' - ' + ratingFC;
+		scoreTxt.text = 'Score: ' + songScore + 'Combo Breaks: ' + misses + 'Accuracy: ' + Highscore.floorDecimal(ratingPercent * 100, 2) + '%'
 
 		if(ClientPrefs.showHealth) {
 			healthTxt.text = "HEALTH: " + Highscore.floorDecimal(healthBar.percent, 2) + '%';
@@ -3869,7 +3886,7 @@ class PlayState extends MusicBeatState
 		chartingMode = true;
 
 		#if desktop
-		DiscordClient.changePresence("Chart Editor", null, null, true);
+		DiscordClient.changePresence("In Chart Editor~!", null, null, true);
 		#end
 	}
 
@@ -3907,7 +3924,7 @@ class PlayState extends MusicBeatState
 
 				#if desktop
 				// Game Over doesn't get his own variable because it's only used here
-				DiscordClient.changePresence("Game Over - " + detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
+				DiscordClient.changePresence("Game Over! :( - " + detailsText, SONG.song + " (" + storyDifficultyText + ")", iconP2.getCharacter());
 				#end
 				isDead = true;
 				return true;
