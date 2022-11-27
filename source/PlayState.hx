@@ -3436,7 +3436,7 @@ class PlayState extends MusicBeatState
 		setOnLuas('curDecStep', curDecStep);
 		setOnLuas('curDecBeat', curDecBeat);
 
-		scoreTxt.text = 'Score: ' + songScore + 'Combo Breaks: ' + misses + 'Accuracy: ' + Highscore.floorDecimal(ratingPercent * 100, 2) + '%'
+		scoreTxt.text = 'Score: ' + songScore + 'Combo Breaks: ' + misses + 'Accuracy: ' + Highscore.floorDecimal(ratingPercent * 100, 2) + '%';
 
 		if(ClientPrefs.showHealth) {
 			healthTxt.text = "HEALTH: " + Highscore.floorDecimal(healthBar.percent, 2) + '%';
